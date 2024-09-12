@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="watsonx_connector",
-    # version="{{VERSION_VAR}}",
-    version="0.0.1",
+    version="{{VERSION_VAR}}",
+    # version="0.0.1",
     description="IBM Watsonx API wrapper package for calling text generation and embedding requests",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
