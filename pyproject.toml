@@ -1,0 +1,34 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F"]
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".nox",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+extend-exclude = [
+    "*.md",
+    "LICENSE"
+]
+
+[tool.ruff.per-file-ignores]
+"README.md" = ["E999", "E501"]
+"LICENSE" = ["E999"]
+
+[tool.ruff.mccabe]
+max-complexity = 10
