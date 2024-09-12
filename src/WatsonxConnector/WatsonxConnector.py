@@ -1,6 +1,8 @@
 import requests
-import json
-from loguru import logger
+import urllib3
+from typing import TypeVar, List
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class WatsonxConnector(object):
@@ -28,7 +30,8 @@ class WatsonxConnector(object):
         self.model_id: str = model_id
         #   --- Protected Vars
         # Default system prompt - can be updated with set_system_prompt()
-        self._priv_sys_prompt: str = """You always answer the questions with markdown formatting. The markdown 
+        self._priv_sys_prompt: str = \
+            """You always answer the questions with markdown formatting. The markdown 
         formatting you support: headings, bold, italic, links, tables, lists, code blocks, and blockquotes. You must 
         omit that you answer the questions with markdown.
 
@@ -42,27 +45,30 @@ class WatsonxConnector(object):
         Please ensure that your responses are socially unbiased and positive in nature.
 
         If a question does not make any sense, or is not factually coherent, explain why instead of answering 
-        something not correct. If you don'\''t know the answer to a question, please don'\''t share false 
-        information. ----------------"""
+        something not correct. If you don't know the answer to a question, please don't share false 
+        information. 
+        
+        Once you answer a question, do not continue on with repeats.
+        ----------------"""
         self._priv_api_version: str = ""
         self._priv_full_url: str = ""
         self.project_id: str = project_id
         # Default model parameters - can be updated with set_model_params()
         self._priv_model_params: dict = {
             "decoding_method": "sample",
-            "max_new_tokens": 900,
-            "temperature": 0.7,
-            "top_k": 50,
-            "top_p": 1,
-            "repetition_penalty": 1.0
+            "max_new_tokens": 1000,
+            "temperature": 0.4,
+            "top_k": 20,
+            "top_p": 0.9,
+            "repetition_penalty": 1.1
         }
 
     #   --- Setters
     def set_system_prompt(self, i_system_prompt: str):
         self._priv_sys_prompt = i_system_prompt
 
-    def set_model_id(self, i_model_id: str):
-        self.model_id = i_model_id
+    def set_model_id(self, model_id: str):
+        self.model_id = model_id
 
     def set_model_params(self, **kwargs):
         if "max_new_tokens" in kwargs:
@@ -107,7 +113,6 @@ class WatsonxConnector(object):
         project_id: str = self.project_id
 
         self._priv_full_url = f"https://{self.base_url}/ml/v1/text/generation?version={api_version}"
-        logger.info(f"FULL URL FOR POST REQUEST: {self._priv_full_url}")
 
         headers = {
             "Accept": "application/json",
@@ -122,18 +127,68 @@ class WatsonxConnector(object):
             "project_id": project_id,
         }
 
-        logger.info(f"PROMPT AND QUERY: {body['input']}")
+        if self.check_model_type(model_id=model_id, model_type="text_generation"):
+            response = requests.post(
+                self._priv_full_url,
+                headers=headers,
+                json=body,
+                verify=False
+            )
+            if response.status_code != 200:
+                raise Exception("Non-200 response: " + str(response.text))
 
-        response = requests.post(
-            self._priv_full_url,
-            headers=headers,
-            json=body,
-            verify=False
-        )
-        if response.status_code != 200:
-            raise Exception("Non-200 response: " + str(response.text))
+            return response.json()['results'][0]['generated_text']
+        else:
+            raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --TEXT-- GENERATION")
 
-        return response.json()['results'][0]['generated_text']
+    def generate_embedding(self, val_input: str | List[str]) -> List[float]:
+        input_string: str | List[str] = val_input
+        api_version: str = "2024-05-02"
+        model_id: str = self.model_id
+        model_params: dict = self._priv_model_params
+        project_id: str = self.project_id
+        body: dict = {}
+
+        self._priv_full_url = f"https://{self.base_url}/ml/v1/text/embeddings?version={api_version}"
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self._priv_api_token}"
+        }
+
+        if isinstance(val_input, str):
+            body = {
+                "inputs": [input_string],
+                "parameters": {
+                    "truncate_input_tokens": 128
+                },
+                "model_id": model_id,
+                "project_id": project_id,
+            }
+        elif isinstance(val_input, list):
+            body = {
+                "inputs": input_string,
+                "parameters": {
+                    "truncate_input_tokens": 128
+                },
+                "model_id": model_id,
+                "project_id": project_id,
+            }
+
+        if self.check_model_type(model_id=model_id, model_type="embedding"):
+            response = requests.post(
+                self._priv_full_url,
+                headers=headers,
+                json=body,
+                verify=False
+            )
+            if response.status_code != 200:
+                raise Exception("Non-200 response: " + str(response.text))
+
+            return [item['embedding'] for item in response.json()['results']]
+        else:
+            raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --EMBEDDING-- GENERATION")
 
     def generate_auth_token(self) -> str:
         return requests.post(
@@ -161,3 +216,9 @@ class WatsonxConnector(object):
         model_names = [model_id['model_id'] for model_id in response['resources'] if len(model_id['functions'][:]) > 0]
 
         return {model: func[0]['id'] for (model, func) in zip(model_names, model_functions)}
+
+    def check_model_type(self, model_id: str, model_type: str) -> bool:
+        if self.get_available_models()[model_id] == model_type:
+            return True
+        else:
+            return False
