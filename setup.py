@@ -15,6 +15,9 @@ setup(
     install_requires=[
         "setuptools",
         "wheel",
+        "requests",
+        "python-dotenv~=1.0.1",
+        "urllib3~=2.2.2"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
