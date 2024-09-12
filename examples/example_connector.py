@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-from src.WatsonxConnector.WatsonxConnector import WatsonxConnector
+from WatsonxConnector.connector import WatsonxConnector
 
 load_dotenv()
 
