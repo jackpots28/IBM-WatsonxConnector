@@ -1,3 +1,4 @@
+import setuptools
 from setuptools import setup, find_packages
 
 setup(
@@ -11,12 +12,11 @@ setup(
     author="Jack Sims",
     author_email="jack.m.sims@protonmail.com",
     license="Apache-2.0",
-    packages=['WatsonxConnector'],
+    packages=setuptools.find_packages(exclude=("examples",)),
     install_requires=[
         "setuptools",
         "wheel",
         "requests",
-        "python-dotenv~=1.0.1",
         "urllib3~=2.2.2"
     ],
     classifiers=[
