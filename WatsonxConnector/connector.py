@@ -64,8 +64,8 @@ class WatsonxConnector(object):
         }
 
     #   --- Setters
-    def set_system_prompt(self, i_system_prompt: str):
-        self._priv_sys_prompt = i_system_prompt
+    def set_system_prompt(self, system_prompt: str):
+        self._priv_sys_prompt = system_prompt
 
     def set_model_id(self, model_id: str):
         self.model_id = model_id
@@ -141,8 +141,8 @@ class WatsonxConnector(object):
         else:
             raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --TEXT-- GENERATION")
 
-    def generate_embedding(self, val_input: str | List[str]) -> List[float]:
-        input_string: str | List[str] = val_input
+    def generate_embedding(self, phrase: str | List[str]) -> List[float]:
+        input_string: str | List[str] = phrase
         api_version: str = "2024-05-02"
         model_id: str = self.model_id
         model_params: dict = self._priv_model_params
@@ -157,7 +157,7 @@ class WatsonxConnector(object):
             "Authorization": f"Bearer {self._priv_api_token}"
         }
 
-        if isinstance(val_input, str):
+        if isinstance(phrase, str):
             body = {
                 "inputs": [input_string],
                 "parameters": {
@@ -166,7 +166,7 @@ class WatsonxConnector(object):
                 "model_id": model_id,
                 "project_id": project_id,
             }
-        elif isinstance(val_input, list):
+        elif isinstance(phrase, list):
             body = {
                 "inputs": input_string,
                 "parameters": {
@@ -190,7 +190,10 @@ class WatsonxConnector(object):
         else:
             raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --EMBEDDING-- GENERATION")
 
-    def generate_auth_token(self) -> str:
+    def generate_auth_token(self, api_key=None) -> str:
+        if api_key is not None:
+            self.api_key = api_key
+
         return requests.post(
             url=f"https://{self.base_url}/icp4d-api/v1/authorize",
             headers={
