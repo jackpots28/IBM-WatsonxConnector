@@ -20,22 +20,26 @@ def main():
                                              project_id=project_id
                                              )
 
-    for model, model_type in example_connector_obj.get_available_models().items():
-        print(f"{model}: {model_type}")
-
-    example_connector_obj.set_model_params(temperature=0.7, max_new_tokens=800)
-    print(example_connector_obj.get_model_params())
-
+    print(example_connector_obj.get_sys_prompt())
+    print(example_connector_obj.get_user_prompt())
+    print(example_connector_obj.get_available_models())
     print(example_connector_obj.generate_text("Write an example python unittest"))
 
-    example_connector_obj.set_model_id(model_id="ibm/slate-125m-english-rtrvr")
-    for embed in example_connector_obj.generate_embedding(["something", "something else"]):
-        print(embed)
+    # for model, model_type in example_connector_obj.get_available_models().items():
+    #     print(f"{model}: {model_type}")
+    #
+    # example_connector_obj.set_model_params(temperature=0.7, max_new_tokens=800)
+    # print(example_connector_obj.get_model_params())
+    #
+    # print(example_connector_obj.generate_text("Write an example python unittest"))
+    #
+    # example_connector_obj.set_model_id(model_id="ibm/slate-125m-english-rtrvr")
+    # for embed in example_connector_obj.generate_embedding(["something", "something else"]):
+    #     print(embed)
 
 
 if __name__ == "__main__":
     main()
-
 
 '''
 EXAMPLE OUTPUT FROM ABOVE:

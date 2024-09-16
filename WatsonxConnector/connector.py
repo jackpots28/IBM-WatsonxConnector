@@ -1,18 +1,25 @@
 import requests
 import urllib3
-from typing import TypeVar, List
+from typing import List
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+# TODO - change model_id to not be required on object instantiation, but error more gracefully for if model_id
+#  is not set and is required when calling a class method.
+#  On model_id set - check against models on cluster and fail gracefully if not present
+
+# TODO - need to cleanup type hints for method output definitions (overall)
 class WatsonxConnector(object):
     __slots__ = [
         # --- Set during methods
         '_priv_sys_prompt',
+        '_priv_user_prompt',
         '_priv_api_version',
         '_priv_full_url',
         '_priv_model_params',
         '_priv_api_token',
+
         # --- Required on obj creation
         "project_id",
         'base_url',
@@ -21,6 +28,7 @@ class WatsonxConnector(object):
         'model_id',
     ]
 
+    # TODO - Work on a better default system prompt for bellow...
     def __init__(self, base_url: str, user_name: str, api_key: str, model_id: str, project_id: str):
         #   --- Public Vars
         self.base_url: str = base_url
@@ -50,6 +58,7 @@ class WatsonxConnector(object):
         
         Once you answer a question, do not continue on with repeats.
         ----------------"""
+        self._priv_user_prompt: str = "QUESTION: "
         self._priv_api_version: str = ""
         self._priv_full_url: str = ""
         self.project_id: str = project_id
@@ -64,8 +73,12 @@ class WatsonxConnector(object):
         }
 
     #   --- Setters
+    # TODO - Need to elaborate on the setting of user/system prompts for better tooling in prompt engineering
     def set_system_prompt(self, system_prompt: str):
         self._priv_sys_prompt = system_prompt
+
+    def set_user_prompt(self, user_prompt: str):
+        self._priv_user_prompt = user_prompt
 
     def set_model_id(self, model_id: str):
         self.model_id = model_id
@@ -103,12 +116,19 @@ class WatsonxConnector(object):
     def get_model_params(self) -> dict:
         return self._priv_model_params
 
+    def get_sys_prompt(self) -> str:
+        return self._priv_sys_prompt
+
+    def get_user_prompt(self) -> str:
+        return self._priv_user_prompt
+
     #   --- UTILS
     def generate_text(self, query: str) -> str:
         input_query: str = query
         api_version: str = "2023-05-29"
         model_id: str = self.model_id
         sys_prompt: str = self._priv_sys_prompt
+        user_prompt: str = self._priv_user_prompt
         model_params: dict = self._priv_model_params
         project_id: str = self.project_id
 
@@ -121,7 +141,7 @@ class WatsonxConnector(object):
         }
 
         body = {
-            "input": f"""{sys_prompt}\nQUESTION: {input_query}\n----------------""",
+            "input": f"""{sys_prompt}\n{user_prompt}{input_query}\n----------------""",
             "parameters": model_params,
             "model_id": model_id,
             "project_id": project_id,
@@ -220,6 +240,7 @@ class WatsonxConnector(object):
 
         return {model: func[0]['id'] for (model, func) in zip(model_names, model_functions)}
 
+    # TODO - need to check if model_id is set on class vars first and error more gracefully
     def check_model_type(self, model_id: str, model_type: str) -> bool:
         if self.get_available_models()[model_id] == model_type:
             return True
