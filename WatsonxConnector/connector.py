@@ -210,9 +210,12 @@ class WatsonxConnector(object):
         else:
             raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --EMBEDDING-- GENERATION")
 
-    def generate_auth_token(self, api_key=None) -> str:
+    def generate_auth_token(self, api_key=None, user_name=None) -> str:
         if api_key is not None:
             self.api_key = api_key
+
+        if user_name is not None:
+            self.user_name = user_name
 
         return requests.post(
             url=f"https://{self.base_url}/icp4d-api/v1/authorize",

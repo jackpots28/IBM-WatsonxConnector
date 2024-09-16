@@ -24,11 +24,12 @@
 	* `query`: The query to use for text generation.
 8. `generate_embedding`: This function generates an embedding for a given phrase using the Watsonx API. It takes the following arguments:
 	* `phrase`: The phrase to use for embedding generation.
-9. `generate_auth_token`: This function generates an authentication token for the Watsonx API. It takes the following argument:
+9. `generate_auth_token`: This function generates an authentication token for the Watsonx API. It takes the following optional arguments:
 	* `api_key`: The API key to use for authentication.
+    * `user_name`: The username that is associated with the API key
 10. `get_available_models`: This function retrieves a list of available models for text generation. It takes no arguments.
-11. `check_model_type`: This function checks the type of a given model. It takes the following arguments:
-	* `model_id`: The ID of the model to check.
-	* `model_type`: The type of the model to check.
+11. `check_model_type`: This function checks the 'type' of a given model. It takes the following arguments:
+	* `model_id`: The ID of the model to check. (exact id's can be found using _`get_available_models()`_)
+	* `model_type`: The type of the model to check ('text_generation' or 'embedding')
 
 Each of these functions is used to interact with the Watsonx API in some way, whether it be to generate text, retrieve available models, or check the type of a given model.
