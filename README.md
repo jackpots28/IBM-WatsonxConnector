@@ -93,6 +93,7 @@ In this case, we define a new class ...
 - get_auth_token()
 - get_model_params()
 - get_available_models()
+- get_params()
 - check_model_type()
 - generate_text()
 - generate_embedding()
