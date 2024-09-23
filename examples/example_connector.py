@@ -20,10 +20,20 @@ def main():
                                              project_id=project_id
                                              )
 
+    example_connector_obj.set_system_prompt("SOMETHING")
     print(example_connector_obj.get_sys_prompt())
     print(example_connector_obj.get_user_prompt())
     print(example_connector_obj.get_available_models())
-    print(example_connector_obj.generate_text("Write an example python unittest"))
+
+    example_connector_obj.set_model_id("ibm/granite-13b-chat-v2")
+
+    # print(example_connector_obj.generate_text("What can you do?"))
+    print(example_connector_obj.get_params())
+
+    example_connector_obj.set_model_id("ibm/slate-125m-english-rtrvr")
+    print(example_connector_obj.generate_embedding("Something"))
+
+    # print(example_connector_obj.generate_text("Write an example python unittest"))
 
     # for model, model_type in example_connector_obj.get_available_models().items():
     #     print(f"{model}: {model_type}")

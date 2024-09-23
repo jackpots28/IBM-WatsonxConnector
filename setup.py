@@ -1,5 +1,5 @@
 import setuptools
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="WatsonxConnector",
@@ -17,7 +17,7 @@ setup(
         "setuptools",
         "wheel",
         "requests",
-        "urllib3~=2.2.2"
+        "urllib3~=2.2.3"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

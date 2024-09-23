@@ -1,6 +1,6 @@
 import requests
 import urllib3
-from typing import List
+from typing import List, Final
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -28,10 +28,12 @@ class WatsonxConnector(object):
         'model_id',
     ]
 
-    # TODO - Work on a better default system prompt for bellow...
-    def __init__(self, base_url: str, user_name: str, api_key: str, model_id: str, project_id: str):
+    text_generation_api_url: Final[str] = "/ml/v1/foundation_model_specs?version="
+    embed_generation_api_url: Final[str] = "/ml/v1/text/embeddings?version="
+
+    def __init__(self, base_url: str, user_name: str, api_key: str, project_id: str, model_id: str = ""):
         #   --- Public Vars
-        self.base_url: str = base_url
+        self.base_url: str = base_url.replace("https://", "").replace("http://", "")
         self.user_name: str = user_name
         self.api_key: str = api_key
         self._priv_api_token: str = self.generate_auth_token()
@@ -39,15 +41,7 @@ class WatsonxConnector(object):
         #   --- Protected Vars
         # Default system prompt - can be updated with set_system_prompt()
         self._priv_sys_prompt: str = \
-            """You always answer the questions with markdown formatting. The markdown 
-        formatting you support: headings, bold, italic, links, tables, lists, code blocks, and blockquotes. You must 
-        omit that you answer the questions with markdown.
-
-        Any HTML tags must be wrapped in block quotes, for example ```<html>```. You will be penalized for not 
-        rendering code in block quotes.
-
-        When returning code blocks, specify language.
-
+            """
         You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. 
         Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. 
         Please ensure that your responses are socially unbiased and positive in nature.
@@ -106,7 +100,6 @@ class WatsonxConnector(object):
         self.project_id = project_id
 
     #   --- Getters
-
     def get_model_id(self) -> str:
         return self.model_id
 
@@ -122,17 +115,21 @@ class WatsonxConnector(object):
     def get_user_prompt(self) -> str:
         return self._priv_user_prompt
 
+    def get_params(self) -> str:
+        return "\n".join([f"{k}: {v}" for k, v in self._priv_model_params.items()])
+
     #   --- UTILS
     def generate_text(self, query: str) -> str:
         input_query: str = query
         api_version: str = "2023-05-29"
+        api_url_function: str = self.text_generation_api_url
         model_id: str = self.model_id
         sys_prompt: str = self._priv_sys_prompt
         user_prompt: str = self._priv_user_prompt
         model_params: dict = self._priv_model_params
         project_id: str = self.project_id
 
-        self._priv_full_url = f"https://{self.base_url}/ml/v1/text/generation?version={api_version}"
+        self._priv_full_url = f"https://{self.base_url}{api_url_function}{api_version}"
 
         headers = {
             "Accept": "application/json",
@@ -141,7 +138,7 @@ class WatsonxConnector(object):
         }
 
         body = {
-            "input": f"""{sys_prompt}\n{user_prompt}{input_query}\n----------------""",
+            "input": f"""{sys_prompt}\n{user_prompt}{input_query}\n""",
             "parameters": model_params,
             "model_id": model_id,
             "project_id": project_id,
@@ -164,12 +161,12 @@ class WatsonxConnector(object):
     def generate_embedding(self, phrase: str | List[str]) -> List[float]:
         input_string: str | List[str] = phrase
         api_version: str = "2024-05-02"
+        api_url_function: str = self.embed_generation_api_url
         model_id: str = self.model_id
-        model_params: dict = self._priv_model_params
         project_id: str = self.project_id
         body: dict = {}
 
-        self._priv_full_url = f"https://{self.base_url}/ml/v1/text/embeddings?version={api_version}"
+        self._priv_full_url = f"https://{self.base_url}{api_url_function}{api_version}"
 
         headers = {
             "Accept": "application/json",
@@ -232,9 +229,10 @@ class WatsonxConnector(object):
 
     def get_available_models(self) -> dict:
         api_version: str = "2020-09-01"
+        api_url_function: str = "/ml/v1/foundation_model_specs?version="
 
         response = requests.get(
-            url=f"https://{self.base_url}/ml/v1/foundation_model_specs?version={api_version}",
+            url=f"https://{self.base_url}{api_url_function}{api_version}",
             verify=False
         ).json()
 
@@ -245,7 +243,10 @@ class WatsonxConnector(object):
 
     # TODO - need to check if model_id is set on class vars first and error more gracefully
     def check_model_type(self, model_id: str, model_type: str) -> bool:
-        if self.get_available_models()[model_id] == model_type:
-            return True
+        if self.model_id is not None:
+            if self.get_available_models()[model_id] == model_type:
+                return True
+            else:
+                return False
         else:
             return False
