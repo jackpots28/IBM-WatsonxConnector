@@ -20,12 +20,13 @@ def main():
                                              project_id=project_id
                                              )
 
+    example_connector_obj.set_model_id("meta-llama/llama-3-70b-instruct")
+    print(example_connector_obj.generate_text("What can you help with?"))
+
     example_connector_obj.set_system_prompt("SOMETHING")
     print(example_connector_obj.get_sys_prompt())
     print(example_connector_obj.get_user_prompt())
     print(example_connector_obj.get_available_models())
-
-    example_connector_obj.set_model_id("ibm/granite-13b-chat-v2")
 
     # print(example_connector_obj.generate_text("What can you do?"))
     print(example_connector_obj.get_params())

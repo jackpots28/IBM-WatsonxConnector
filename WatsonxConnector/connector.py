@@ -28,7 +28,7 @@ class WatsonxConnector(object):
         'model_id',
     ]
 
-    text_generation_api_url: Final[str] = "/ml/v1/foundation_model_specs?version="
+    text_generation_api_url: Final[str] = "/ml/v1/text/generation?version="
     embed_generation_api_url: Final[str] = "/ml/v1/text/embeddings?version="
 
     def __init__(self, base_url: str, user_name: str, api_key: str, project_id: str, model_id: str = ""):
