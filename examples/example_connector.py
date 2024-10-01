@@ -10,6 +10,7 @@ user_name = os.getenv("USER_NAME")
 api_key = os.getenv("API_KEY")
 model_id = os.getenv("MODEL_ID")
 project_id = os.getenv("PROJECT_ID")
+deployment_id = os.getenv("DEPLOYMENT_ID")
 
 
 def main():
@@ -21,7 +22,7 @@ def main():
                                              )
 
     example_connector_obj.set_model_id("meta-llama/llama-3-70b-instruct")
-    print(example_connector_obj.generate_text("What can you help with?"))
+    # print(example_connector_obj.generate_text("What can you help with?"))
 
     example_connector_obj.set_system_prompt("SOMETHING")
     print(example_connector_obj.get_sys_prompt())
@@ -31,9 +32,11 @@ def main():
     # print(example_connector_obj.generate_text("What can you do?"))
     print(example_connector_obj.get_params())
 
-    example_connector_obj.set_model_id("ibm/slate-125m-english-rtrvr")
-    print(example_connector_obj.generate_embedding("Something"))
+    example_connector_obj.set_model_params(max_new_tokens=200)
 
+    example_connector_obj.set_deployment_id(deployment_id)
+    print(example_connector_obj.get_deployment_id())
+    print(example_connector_obj.generate_text_custom_model("What can you do?"))
     # print(example_connector_obj.generate_text("Write an example python unittest"))
 
     # for model, model_type in example_connector_obj.get_available_models().items():

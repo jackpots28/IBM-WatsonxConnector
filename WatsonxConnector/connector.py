@@ -19,6 +19,8 @@ class WatsonxConnector(object):
         '_priv_full_url',
         '_priv_model_params',
         '_priv_api_token',
+        '_priv_deployment_id',
+        '_priv_custom_model_text_generation_api_url',
 
         # --- Required on obj creation
         "project_id",
@@ -27,9 +29,6 @@ class WatsonxConnector(object):
         'api_key',
         'model_id',
     ]
-
-    text_generation_api_url: Final[str] = "/ml/v1/text/generation?version="
-    embed_generation_api_url: Final[str] = "/ml/v1/text/embeddings?version="
 
     def __init__(self, base_url: str, user_name: str, api_key: str, project_id: str, model_id: str = ""):
         #   --- Public Vars
@@ -65,6 +64,10 @@ class WatsonxConnector(object):
             "top_p": 0.9,
             "repetition_penalty": 1.1
         }
+        self._priv_deployment_id: str = ""
+
+    text_generation_api_url: Final[str] = "/ml/v1/text/generation?version="
+    embed_generation_api_url: Final[str] = "/ml/v1/text/embeddings?version="
 
     #   --- Setters
     # TODO - Need to elaborate on the setting of user/system prompts for better tooling in prompt engineering
@@ -99,6 +102,9 @@ class WatsonxConnector(object):
     def set_project_id(self, project_id: str):
         self.project_id = project_id
 
+    def set_deployment_id(self, deployment_id: str):
+        self._priv_deployment_id = deployment_id
+
     #   --- Getters
     def get_model_id(self) -> str:
         return self.model_id
@@ -117,6 +123,9 @@ class WatsonxConnector(object):
 
     def get_params(self) -> str:
         return "\n".join([f"{k}: {v}" for k, v in self._priv_model_params.items()])
+
+    def get_deployment_id(self) -> str | None:
+        return self._priv_deployment_id
 
     #   --- UTILS
     def generate_text(self, query: str) -> str:
@@ -157,6 +166,42 @@ class WatsonxConnector(object):
             return response.json()['results'][0]['generated_text']
         else:
             raise Exception("MODEL TYPE IS NOT SUPPORTED FOR --TEXT-- GENERATION")
+
+    def generate_text_custom_model(self, query: str) -> str:
+        input_query: str = query
+        api_version: str = "2023-05-29"
+        sys_prompt: str = self._priv_sys_prompt
+        user_prompt: str = self._priv_user_prompt
+        model_params: dict = self._priv_model_params
+        if WatsonxConnector.get_deployment_id(self) is None:
+            raise Exception("Deployment ID accessible")
+        else:
+            api_url_function = f"/ml/v1/deployments/{WatsonxConnector.get_deployment_id(self)}/text/generation?version="
+
+        self._priv_full_url = f"https://{self.base_url}{api_url_function}{api_version}"
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self._priv_api_token}"
+        }
+
+        body = {
+            "input": f"""{sys_prompt}\n{user_prompt}{input_query}\n""",
+            "parameters": model_params,
+        }
+
+        response = requests.post(
+            self._priv_full_url,
+            headers=headers,
+            json=body,
+            verify=False
+        )
+
+        if response.status_code != 200:
+            raise Exception("Non-200 response: " + str(response.text))
+
+        return response.json()['results'][0]['generated_text']
 
     def generate_embedding(self, phrase: str | List[str]) -> List[float]:
         input_string: str | List[str] = phrase
