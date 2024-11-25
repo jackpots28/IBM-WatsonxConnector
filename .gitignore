@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+uv.lock
 
 # Virtual environments
 .venv
@@ -13,3 +14,6 @@ wheels/
 .env
 .python-version
 .idea
+
+# Testing Folders
+sandbox/
