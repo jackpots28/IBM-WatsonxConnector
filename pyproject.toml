@@ -14,15 +14,18 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[tool.setuptools-git-versioning]
+enabled = true
+
 [project.scripts]
 WatsonxConnector = "WatsonxConnector:connector"
 
 [build-system]
-requires = ["setuptools>=61"]
+requires = [ "setuptools>=61", "wheel", "setuptools-git-versioning>=2.0,<3", ]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-version = {file = "VERSION"}
+#[tool.setuptools.dynamic]
+#version = {file = "VERSION"}
 
 [tool.ruff]
 line-length = 100
