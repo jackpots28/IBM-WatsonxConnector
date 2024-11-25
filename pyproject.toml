@@ -1,13 +1,14 @@
 [project]
 name = "WatsonxConnector"
 description = "Add your description here"
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
     { name = "jackpots28", email = "jack.m.sims@protonmail.com" }
 ]
 requires-python = ">=3.9, <=3.13"
 dependencies = [
     "requests>=2.32.3",
+    "setuptools-git-versioning>=2.0.0",
     "setuptools>=75.6.0",
     "urllib3>=2.2.3",
 ]
