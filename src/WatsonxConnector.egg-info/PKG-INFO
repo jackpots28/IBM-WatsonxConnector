@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: WatsonxConnector
+Version: 0.2.1.post1+git.d7d46f69
+Summary: Add your description here
+Author-email: jackpots28 <jack.m.sims@protonmail.com>
+Requires-Python: <=3.13,>=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.32.3
+Requires-Dist: setuptools-git-versioning>=2.0.0
+Requires-Dist: setuptools>=75.6.0
+Requires-Dist: urllib3>=2.2.3

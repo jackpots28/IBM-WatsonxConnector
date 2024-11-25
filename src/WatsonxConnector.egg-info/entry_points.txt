@@ -1,0 +1,2 @@
+[console_scripts]
+WatsonxConnector = WatsonxConnector:connector
