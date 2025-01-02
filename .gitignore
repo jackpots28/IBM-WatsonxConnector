@@ -1,4 +1,23 @@
-.idea
-.env
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+uv.lock
+
+# Pycharm-generate files
 WatsonxConnector/WatsonxConnector/__pycache__/
 WatsonxConnector/__pycache__/
+
+# Virtual environments
+.venv
+
+# env files
+.env
+.python-version
+.idea
+
+# Testing Folders
+sandbox/
