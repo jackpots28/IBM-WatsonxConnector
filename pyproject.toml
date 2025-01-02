@@ -1,32 +1,7 @@
-[project]
-name = "WatsonxConnector"
-description = "Add your description here"
-readme = "README.md"
-authors = [
-    { name = "jackpots28", email = "jack.m.sims@protonmail.com" }
-]
-requires-python = ">=3.9, <=3.13"
-dependencies = [
-    "requests>=2.32.3",
-    "setuptools>=75.6.0",
-    "urllib3>=2.2.3",
-]
-dynamic = ["version"]
-
-[project.scripts]
-WatsonxConnector = "WatsonxConnector:connector"
-
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.dynamic]
-version = {file = "VERSION"}
-
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-lint.select = ["E", "F"]
+select = ["E", "F"]
 
 exclude = [
     ".bzr",
