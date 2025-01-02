@@ -153,7 +153,8 @@ class WatsonxConnector(object):
             "project_id": project_id,
         }
 
-        if self.check_model_type(model_id=model_id, model_type="text_generation"):
+        if self.check_model_type(model_id=model_id, model_type="text_generation") \
+                or self.check_model_type(model_id=model_id, model_type="text_chat"):
             response = requests.post(
                 self._priv_full_url,
                 headers=headers,
