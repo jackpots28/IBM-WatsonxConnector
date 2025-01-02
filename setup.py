@@ -17,7 +17,7 @@ setup(
         "setuptools",
         "wheel",
         "requests",
-        "urllib3~=2.2.3"
+        "urllib3>=2.2.3,<2.4.0"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
