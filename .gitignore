@@ -10,6 +10,7 @@ uv.lock
 # Pycharm-generate files
 WatsonxConnector/WatsonxConnector/__pycache__/
 WatsonxConnector/__pycache__/
+src/WatsonxConnector/__pycache__
 
 # Virtual environments
 .venv
